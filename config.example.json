@@ -1,0 +1,25 @@
+{
+  "$comment": "Copy to your user-data dir (mounted at /config/speakerphone.json). The SIP password comes from env SIP_PASSWORD or SIP_PASSWORD_FILE, never this file.",
+  "sip_aor": "sip:201@192.168.1.10",
+  "display_name": "Kitchen Speakerphone",
+  "sink": "alsa_output.usb-0b0e_Jabra_SPEAK_510_USB_XXXX-00.analog-stereo",
+  "source": "alsa_input.usb-0b0e_Jabra_SPEAK_510_USB_XXXX-00.mono-fallback",
+  "sip_listen": "0.0.0.0:5070",
+  "rtp_ports": "18200-18300",
+  "tts_host": "192.168.1.10",
+  "tts_port": 10200,
+  "tts_voice": null,
+  "announce_template": "Call from {caller}{line_part}.",
+  "announce_repeats": 6,
+  "number_locale": "IL",
+  "emergency_numbers": ["100", "101", "102"],
+  "lines": [
+    {"name": "the home line", "match_prefix": "Home ", "dial_prefix": "", "default": true, "aliases": ["home", "personal"]},
+    {"name": "the work line", "match_prefix": "Work ", "dial_prefix": "2", "aliases": ["work", "business"]}
+  ],
+  "contacts": {
+    "+972501234567": "Alice",
+    "6100": "Bob"
+  },
+  "mcp_port": 8840
+}
