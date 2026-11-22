@@ -15,6 +15,7 @@ from .config import load
 from .numbers import normalise
 from .phone import Phone
 
+log = logging.getLogger("speakerphone.mcp")
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"), format="%(asctime)s %(name)s %(levelname)s %(message)s")
 cfg = load()
 phone = Phone(cfg)
@@ -36,6 +37,7 @@ async def healthz(_req: Request) -> JSONResponse:
 async def phone_status() -> dict:
     """Who is calling or who is on the line: call state (ringing/active/...), caller name or number, which line it
     came in on, duration, mute state and whether the phone is registered. Use for "who's calling?"."""
+    log.info("tool phone_status")
     st = phone.status()
     st["volume_percent"] = await audio.get_volume(cfg)
     return st
@@ -44,30 +46,35 @@ async def phone_status() -> dict:
 @mcp.tool()
 async def phone_answer() -> dict:
     """Answer the ringing call on the speakerphone."""
+    log.info("tool phone_answer")
     return await phone.answer()
 
 
 @mcp.tool()
 async def phone_reject() -> dict:
     """Reject (decline) the ringing call."""
+    log.info("tool phone_reject")
     return await phone.reject()
 
 
 @mcp.tool()
 async def phone_hangup() -> dict:
     """Hang up / end the current call (also cancels an outgoing call that is still ringing)."""
+    log.info("tool phone_hangup")
     return await phone.hangup()
 
 
 @mcp.tool()
 async def phone_mute(muted: bool = True) -> dict:
     """Mute (muted=true) or unmute (muted=false) the speakerphone microphone on the active call."""
+    log.info("tool phone_mute muted=%r", muted)
     return await phone.mute(muted)
 
 
 @mcp.tool()
 async def phone_volume(change: str = "up") -> dict:
     """Speaker volume: change = "up", "down", or a percentage like "60"."""
+    log.info("tool phone_volume change=%r", change)
     step = {"up": "+10%", "down": "-10%", "louder": "+10%", "quieter": "-10%"}.get(change.lower().strip())
     if not step:
         digits = "".join(ch for ch in change if ch.isdigit())
@@ -84,12 +91,14 @@ async def phone_call(number_or_contact: str, line: str | None = None, confirmed:
     First call with confirmed=false: it returns status needs_confirmation and a 'say' read-back; speak it, and only
     after the user says yes call again with confirmed=true. Emergency numbers (police, ambulance, fire) dial at once.
     line: which outgoing line (e.g. "home" or "work"); default line if omitted."""
+    log.info("tool phone_call number_or_contact=%r line=%r confirmed=%r", number_or_contact, line, confirmed)
     return await phone.dial(number_or_contact, line, confirmed)
 
 
 @mcp.tool()
 async def phone_check_number(number: str) -> dict:
     """Normalise a dictated phone number without dialling: international form, kind, and a spoken read-back."""
+    log.info("tool phone_check_number number=%r", number)
     n = normalise(number, cfg.number_locale, cfg.internal_pattern)
     return {"ok": n.ok, "dial": n.dial, "kind": n.kind, "readback": n.readback, "error": n.error}
 
